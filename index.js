@@ -46,6 +46,7 @@ client.connect(err => {
       res.send(result.insertedCount > 0);
     });
   });
+
   // Get Admin Collection Check from database
   app.get('/getAdmin', (req, res) => {
     adminCollection
