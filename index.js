@@ -6,9 +6,11 @@ const port = 5000;
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+// const ObjectID = require('mongodb').ObjectID
 
 // MongoDB Connection
 const MongoClient = require('mongodb').MongoClient;
+const { ObjectID } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2o4cg.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -18,7 +20,9 @@ client.connect(err => {
   const productsCollection = client
     .db('freshValleyShop')
     .collection('products');
-  //   client.close();
+
+  const ordersCollection = client.db('freshValleyShop').collection('order');
+  const adminCollection = client.db('freshValleyShop').collection('admin');
 
   // Save Product on Database
   app.post('/addProduct', (req, res) => {
@@ -26,13 +30,22 @@ client.connect(err => {
     console.log('adding new event: ', newProduct);
     productsCollection.insertOne(newProduct).then(result => {
       res.send(result.insertedCount > 0);
-      console.log(result);
     });
   });
   // Get Products from database
   app.get('/products', (req, res) => {
     productsCollection.find().toArray((err, items) => {
       res.send(items);
+    });
+  });
+  // Get Admin Collection Check from database
+  app.post('/admin', (req, res) => {
+    adminCollection.findOne({ email: req.body.email }, (err, doc) => {
+      if (doc) {
+        res.send(true);
+      } else {
+        res.send(false);
+      }
     });
   });
 
@@ -47,8 +60,11 @@ client.connect(err => {
   // Find Product using id and Delete Product from Database
   app.delete('/deleteProduct/:id', (req, res) => {
     const id = ObjectID(req.params.id);
+    console.log(id);
     productsCollection.deleteOne({ _id: id }).then(result => {
       res.send(result.deletedCount > 0);
+      console.log(result);
+      jnh;
     });
   });
 
