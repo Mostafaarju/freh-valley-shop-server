@@ -38,15 +38,21 @@ client.connect(err => {
       res.send(items);
     });
   });
-  // Get Admin Collection Check from database
-  app.post('/admin', (req, res) => {
-    adminCollection.findOne({ email: req.body.email }, (err, doc) => {
-      if (doc) {
-        res.send(true);
-      } else {
-        res.send(false);
-      }
+  // Send admin in Database
+  app.post('/addAdmin', (req, res) => {
+    const admin = req.body;
+    console.log(admin);
+    adminCollection.insertOne(admin).then(result => {
+      res.send(result.insertedCount > 0);
     });
+  });
+  // Get Admin Collection Check from database
+  app.get('/getAdmin', (req, res) => {
+    adminCollection
+      .find({ email: req.query.email })
+      .toArray((err, documents) => {
+        res.send(documents);
+      });
   });
 
   // Get Product from Database using ID
